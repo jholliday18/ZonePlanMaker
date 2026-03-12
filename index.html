@@ -3,131 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zone Plan Maker</title>
+  <title>Basic Canvas Test</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/6.0.0/fabric.min.js"></script>
   <style>
     body {
       margin: 0;
       display: flex;
       height: 100vh;
-      font-family: Arial, sans-serif;
-    }
-    #sidebar {
-      width: 250px;
-      background: #f5f5f5;
-      padding: 15px;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    #main {
-      flex: 1;
-      position: relative;
+      justify-content: center;
+      align-items: center;
     }
     canvas {
-      border: 1px solid #ddd;
-      width: 100%;
-      height: 100%;
-      display: block;
+      border: 1px solid #000;
     }
   </style>
 </head>
 <body>
-  <div id="sidebar">
-    <h2>Project</h2>
-    <input type="text" id="projectName" placeholder="Project Name">
-    <input type="file" id="uploadPlan" accept="image/*">
-    <button id="addZoneBtn">Add Zone</button>
-    <ul id="zoneList"></ul>
-  </div>
-
-  <div id="main">
-    <canvas id="floorCanvas"></canvas>
-  </div>
+  <canvas id="myCanvas" width="800" height="600"></canvas>
 
   <script>
     // Initialize Fabric.js canvas
-    const canvas = new fabric.Canvas('floorCanvas', { selection: false });
+    const canvas = new fabric.Canvas('myCanvas');
 
-    // Resize canvas to fill main area
-    function resizeCanvas() {
-      canvas.setWidth(window.innerWidth - 250); // account for sidebar
-      canvas.setHeight(window.innerHeight);
-      canvas.renderAll();
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    // TEST FLOOR PLAN URL (works without uploading)
-fabric.Image.fromURL('https://balancedarchitecture.com/wp-content/uploads/2021/11/EXISTING-FIRST-FLOOR-PRES-scaled-e1635965923983.jpg', function(img) {
-  const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-  img.scale(scale);
-  canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-});
-    
-    // Handle floor plan upload (GitHub Pages compatible)
-    const uploadInput = document.getElementById('uploadPlan');
-    uploadInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(f) {
-        const dataURL = f.target.result;
-        const img = new Image();
-        img.onload = function() {
-          const fabricImg = new fabric.Image(img, {
-            left: 0,
-            top: 0,
-            selectable: false
-          });
-          // scale to fit canvas
-          const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-          fabricImg.scale(scale);
-          canvas.setBackgroundImage(fabricImg, canvas.renderAll.bind(canvas));
-        }
-        img.src = dataURL;
-      }
-      reader.readAsDataURL(file);
-    });
-
-    // Add zones
-    const addZoneBtn = document.getElementById('addZoneBtn');
-    const zoneList = document.getElementById('zoneList');
-    let zoneCounter = 1;
-
-    addZoneBtn.addEventListener('click', () => {
-      const rect = new fabric.Rect({
-        left: 50,
-        top: 50,
-        width: 100,
-        height: 80,
-        fill: 'rgba(255,0,0,0.3)',
-        stroke: 'red',
-        strokeWidth: 2,
-        hasControls: true
+    // Load a test image
+    fabric.Image.fromURL('https://randomimageurl.com/assets/images/local/20260103_0518_Bold%20Abstract%20Composition_simple_compose_01ke204yvyf6pbx3ksw2cjcgkw_compressed_q80.jpeg', function(img) {
+      // Scale the image to fit the canvas
+      const scaleX = canvas.width / img.width;
+      const scaleY = canvas.height / img.height;
+      const scale = Math.min(scaleX, scaleY);
+      img.set({
+        left: 0,
+        top: 0,
+        scaleX: scale,
+        scaleY: scale
       });
 
-      const text = new fabric.Text(`Zone ${zoneCounter}`, {
-        left: rect.left + 5,
-        top: rect.top + 5,
-        fontSize: 16,
-        fill: 'red'
-      });
-
-      const group = new fabric.Group([rect, text], { selectable: true });
-      canvas.add(group);
-      canvas.setActiveObject(group);
-
-      const li = document.createElement('li');
-      li.textContent = `Zone ${zoneCounter}`;
-      zoneList.appendChild(li);
-
-      zoneCounter++;
+      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
     });
   </script>
 </body>
 </html>
-
-
