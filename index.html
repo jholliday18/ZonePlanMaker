@@ -1,131 +1,124 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zone Plan Maker</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/6.0.0/fabric.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-        }
-
-        #sidebar {
-            width: 250px;
-            background: #f5f5f5;
-            padding: 15px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        #main {
-            flex: 1;
-            position: relative;
-        }
-
-        canvas {
-            border: 1px solid #ddd;
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zone Plan Maker</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/6.0.0/fabric.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+    #sidebar {
+      width: 250px;
+      background: #f5f5f5;
+      padding: 15px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #main {
+      flex: 1;
+      position: relative;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <div id="sidebar">
-        <h2>Project</h2>
-        <input type="text" id="projectName" placeholder="Project Name">
-        <input type="file" id="uploadPlan" accept="image/*">
-        <button id="addZoneBtn">Add Zone</button>
-        <ul id="zoneList"></ul>
-    </div>
+  <div id="sidebar">
+    <h2>Project</h2>
+    <input type="text" id="projectName" placeholder="Project Name">
+    <input type="file" id="uploadPlan" accept="image/*">
+    <button id="addZoneBtn">Add Zone</button>
+    <ul id="zoneList"></ul>
+  </div>
 
-    <div id="main">
-        <canvas id="floorCanvas"></canvas>
-    </div>
+  <div id="main">
+    <canvas id="floorCanvas"></canvas>
+  </div>
 
-    <script>
-        // Initialize Fabric.js canvas
-        const canvas = new fabric.Canvas('floorCanvas', { selection: false });
+  <script>
+    // Initialize Fabric.js canvas
+    const canvas = new fabric.Canvas('floorCanvas', { selection: false });
 
-        // Resize canvas to fill main area
-        function resizeCanvas() {
-            canvas.setWidth(window.innerWidth - 250); // sidebar width
-            canvas.setHeight(window.innerHeight);
-            canvas.renderAll();
+    // Resize canvas to fill main area
+    function resizeCanvas() {
+      canvas.setWidth(window.innerWidth - 250); // account for sidebar
+      canvas.setHeight(window.innerHeight);
+      canvas.renderAll();
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Handle floor plan upload (GitHub Pages compatible)
+    const uploadInput = document.getElementById('uploadPlan');
+    uploadInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(f) {
+        const dataURL = f.target.result;
+        const img = new Image();
+        img.onload = function() {
+          const fabricImg = new fabric.Image(img, {
+            left: 0,
+            top: 0,
+            selectable: false
+          });
+          // scale to fit canvas
+          const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+          fabricImg.scale(scale);
+          canvas.setBackgroundImage(fabricImg, canvas.renderAll.bind(canvas));
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        img.src = dataURL;
+      }
+      reader.readAsDataURL(file);
+    });
 
-        // Handle floor plan upload
-        const uploadInput = document.getElementById('uploadPlan');
-        uploadInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+    // Add zones
+    const addZoneBtn = document.getElementById('addZoneBtn');
+    const zoneList = document.getElementById('zoneList');
+    let zoneCounter = 1;
 
-            const reader = new FileReader();
-            reader.onload = function (f) {
-                fabric.Image.fromURL(f.target.result, function (img) {
-                    // Scale image to fit canvas
-                    const scaleX = canvas.width / img.width;
-                    const scaleY = canvas.height / img.height;
-                    const scale = Math.min(scaleX, scaleY);
-                    img.set({
-                        left: 0,
-                        top: 0,
-                        scaleX: scale,
-                        scaleY: scale,
-                        selectable: false
-                    });
-                    canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-                });
-            }
-            reader.readAsDataURL(file);
-        });
+    addZoneBtn.addEventListener('click', () => {
+      const rect = new fabric.Rect({
+        left: 50,
+        top: 50,
+        width: 100,
+        height: 80,
+        fill: 'rgba(255,0,0,0.3)',
+        stroke: 'red',
+        strokeWidth: 2,
+        hasControls: true
+      });
 
-        // Add zones
-        const addZoneBtn = document.getElementById('addZoneBtn');
-        const zoneList = document.getElementById('zoneList');
-        let zoneCounter = 1;
+      const text = new fabric.Text(`Zone ${zoneCounter}`, {
+        left: rect.left + 5,
+        top: rect.top + 5,
+        fontSize: 16,
+        fill: 'red'
+      });
 
-        addZoneBtn.addEventListener('click', () => {
-            // Add rectangle
-            const rect = new fabric.Rect({
-                left: 50,
-                top: 50,
-                width: 100,
-                height: 80,
-                fill: 'rgba(255,0,0,0.3)',
-                stroke: 'red',
-                strokeWidth: 2,
-                hasControls: true
-            });
+      const group = new fabric.Group([rect, text], { selectable: true });
+      canvas.add(group);
+      canvas.setActiveObject(group);
 
-            // Add label
-            const text = new fabric.Text(`Zone ${zoneCounter}`, {
-                left: rect.left + 5,
-                top: rect.top + 5,
-                fontSize: 16,
-                fill: 'red'
-            });
+      const li = document.createElement('li');
+      li.textContent = `Zone ${zoneCounter}`;
+      zoneList.appendChild(li);
 
-            // Group rectangle + label
-            const group = new fabric.Group([rect, text], { selectable: true });
-            canvas.add(group);
-            canvas.setActiveObject(group);
-
-            // Add to sidebar list
-            const li = document.createElement('li');
-            li.textContent = `Zone ${zoneCounter}`;
-            zoneList.appendChild(li);
-
-            zoneCounter++;
-        });
-    </script>
+      zoneCounter++;
+    });
+  </script>
 </body>
 </html>
