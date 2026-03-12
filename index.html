@@ -59,6 +59,13 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
+    // TEST FLOOR PLAN URL (works without uploading)
+fabric.Image.fromURL('https://upload.wikimedia.org/wikipedia/commons/6/6e/Blank_floor_plan.png', function(img) {
+  const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+  img.scale(scale);
+  canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+});
+    
     // Handle floor plan upload (GitHub Pages compatible)
     const uploadInput = document.getElementById('uploadPlan');
     uploadInput.addEventListener('change', (e) => {
@@ -122,3 +129,4 @@
   </script>
 </body>
 </html>
+
