@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZonePlan — Fire Alarm Zone Plan Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app" data-theme="light">
+    <header class="topbar" role="banner" aria-label="Global toolbar">
+      <div class="topbar__left">
+        <div class="brand">
+          <span class="brand__mark" aria-hidden="true">Z</span>
+          <div class="brand__meta">
+            <div class="brand__title">ZonePlan</div>
+            <div class="brand__sub">Fire Alarm Zone Planner</div>
+          </div>
+        </div>
+          <button class="btn icon-btn" data-action="upload" title="Upload floorplan">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7,10 12,15 17,10"/>
+              <line x1="12" x2="12" y1="15" y2="3"/>
+            </svg>
+            <span class="btn__label">Upload</span>
+          </button>
+          <button class="btn icon-btn" data-action="save" title="Save project">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17,21 17,13 7,13 7,21"/>
+              <polyline points="7,3 7,8 15,8"/>
+            </svg>
+            <span class="btn__label">Save</span>
+          </button>
+          <button class="btn icon-btn" data-action="export-pdf" title="Export to PDF">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+              <polyline points="14,2 14,8 20,8"/>
+              <line x1="16" x2="8" y1="13" y2="13"/>
+              <line x1="16" x2="8" y1="17" y2="17"/>
+              <line x1="10" x2="8" y1="9" y2="9"/>
+            </svg>
+            <span class="btn__label">PDF</span>
+          </button>
+          <button class="btn icon-btn" data-action="export-png" title="Export to PNG">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+              <circle cx="9" cy="9" r="2"/>
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+            </svg>
+            <span class="btn__label">PNG</span>
+          </button>
+      </div>
+      <div class="topbar__right">
+        <div class="toolbar">
+          <button class="tool-btn" data-action="undo" title="Undo">
+            <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7v6h6"/>
+              <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+            </svg>
+          </button>
+          <button class="tool-btn" data-action="redo" title="Redo">
+            <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 7v6h-6"/>
+              <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/>
+            </svg>
+          </button>
+          <div class="zoom-control" aria-label="Zoom controls">
+            <button class="tool-btn" data-action="zoom-out" title="Zoom out">
+              <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" x2="16.65" y1="21" y2="16.65"/>
+                <line x1="8" x2="14" y1="11" y2="11"/>
+              </svg>
+            </button>
+            <span class="zoom-label" aria-live="polite">100%</span>
+            <button class="tool-btn" data-action="zoom-in" title="Zoom in">
+              <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" x2="16.65" y1="21" y2="16.65"/>
+                <line x1="11" x2="11" y1="8" y2="14"/>
+                <line x1="8" x2="14" y1="11" y2="11"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <input type="file" id="floorplanInput" accept="image/*" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;" />
+
+    <main class="workspace">
+      <aside class="panel panel--left" aria-label="Tool panel">
+        <div class="panel__header">
+          <h2 class="panel__title">Tools</h2>
+        </div>
+        <nav class="tool-list" aria-label="Drawing tools">
+          <button class="tool" data-tool="select" aria-pressed="true" title="Select">
+            <svg class="tool__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+              <path d="m13 13 6 6"/>
+            </svg>
+            <span class="tool__label">Select</span>
+          </button>
+          <button class="tool" data-tool="draw" title="Free draw">
+            <svg class="tool__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+              <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+              <path d="m2 2 7.586 7.586"/>
+              <circle cx="11" cy="11" r="2"/>
+            </svg>
+            <span class="tool__label">Draw</span>
+          </button>
+          <button class="tool" data-tool="rectangle" title="Rectangle zone">
+            <svg class="tool__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+            </svg>
+            <span class="tool__label">Rectangle</span>
+          </button>
+          <button class="tool" data-tool="polygon" title="Polygon zone">
+            <svg class="tool__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3.5 8.7 6 12.5l3.5-1.8 3.5 1.8L13.5 8.7 16 5l-3.5-1.8L9 5 5.5 3.2 2 5l3.5 3.7Z"/>
+            </svg>
+            <span class="tool__label">Polygon</span>
+          </button>
+          <button class="tool" data-tool="symbol" title="Symbol tool">
+            <svg class="tool__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.83 2.18a2 2 0 0 0-1.66 0l-4 2A2 2 0 0 0 6 5.83V9a2 2 0 0 0 1 1.73l4 2a2 2 0 0 0 2 0l4-2A2 2 0 0 0 18 9V5.83a2 2 0 0 0-1.17-1.65l-4-2z"/>
+              <path d="M12 2.25c.64 0 1.25.25 1.7.7l4 4c.45.45.7 1.06.7 1.7v4c0 .64-.25 1.25-.7 1.7l-4 4c-.45.45-1.06.7-1.7.7s-1.25-.25-1.7-.7l-4-4c-.45-.45-.7-1.06-.7-1.7v-4c0-.64.25-1.25.7-1.7l4-4c.45-.45 1.06-.7 1.7-.7z"/>
+              <path d="M12 12c.64 0 1.25.25 1.7.7l4 4c.45.45.7 1.06.7 1.7s-.25 1.25-.7 1.7l-4 4c-.45.45-1.06.7-1.7.7s-1.25-.25-1.7-.7l-4-4c-.45-.45-.7-1.06-.7-1.7s.25-1.25.7-1.7l4-4c.45-.45 1.06-.7 1.7-.7z"/>
+            </svg>
+            <span class="tool__label">Symbol</span>
+          </button>
+          <button class="tool tool--danger" data-tool="delete" title="Delete tool">
+            <svg class="tool__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18"/>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+              <line x1="10" x2="10" y1="11" y2="17"/>
+              <line x1="14" x2="14" y1="11" y2="17"/>
+            </svg>
+            <span class="tool__label">Delete</span>
+          </button>
+        </nav>
+
+        <div class="symbol-library">
+          <div class="symbol-header">
+            <h3 class="symbol-title">Symbol Library</h3>
+            <p class="symbol-sub">Drag onto the plan</p>
+          </div>
+          <div class="symbol-grid">
+            <button class="symbol" data-symbol="SD" aria-label="Smoke Detector">
+              <svg class="symbol__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8"/>
+                <circle cx="12" cy="12" r="2" fill="currentColor"/>
+              </svg>
+              <span class="symbol__name">Smoke Detector</span>
+            </button>
+            <button class="symbol" data-symbol="HD" aria-label="Heat Detector">
+              <svg class="symbol__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8"/>
+                <path d="M8 8 L12 6 L16 8 L14 12 L10 12 Z" fill="currentColor"/>
+              </svg>
+              <span class="symbol__name">Heat Detector</span>
+            </button>
+            <button class="symbol" data-symbol="FACP" aria-label="Fire Alarm Control Panel">
+              <svg class="symbol__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="16"/>
+                <line x1="6" y1="8" x2="18" y2="8" stroke-width="1"/>
+                <line x1="6" y1="12" x2="18" y2="12" stroke-width="1"/>
+                <line x1="6" y1="16" x2="18" y2="16" stroke-width="1"/>
+              </svg>
+              <span class="symbol__name">Control Panel</span>
+            </button>
+            <button class="symbol" data-symbol="MCP" aria-label="Manual Call Point">
+              <svg class="symbol__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="6" width="12" height="12"/>
+                <circle cx="12" cy="12" r="3" fill="currentColor"/>
+              </svg>
+              <span class="symbol__name">Call Point</span>
+            </button>
+            <button class="symbol" data-symbol="EXIT" aria-label="Fire Exit">
+              <svg class="symbol__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18"/>
+                <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>
+                <path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/>
+                <path d="M16 5l-3 3 3 3"/>
+                <path d="M8 5l3 3-3 3"/>
+              </svg>
+              <span class="symbol__name">Fire Exit</span>
+            </button>
+            <button class="symbol" data-symbol="EXTINGUISHER" aria-label="Fire Extinguisher">
+              <svg class="symbol__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="8" y="4" width="8" height="16"/>
+                <rect x="6" y="6" width="12" height="4"/>
+                <line x1="10" y1="8" x2="14" y2="8"/>
+                <line x1="12" y1="6" x2="12" y2="10"/>
+              </svg>
+              <span class="symbol__name">Extinguisher</span>
+            </button>
+            <button class="symbol" data-symbol="STR" aria-label="Stairwell">
+              <svg class="symbol__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18"/>
+                <path d="M6 6h12"/>
+                <path d="M6 9h12"/>
+                <path d="M6 12h12"/>
+                <path d="M6 15h12"/>
+                <path d="M6 18h12"/>
+              </svg>
+              <span class="symbol__name">Stairwell</span>
+            </button>
+            <button class="symbol" data-symbol="EMERGENCY" aria-label="Emergency Exit">
+              <svg class="symbol__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18"/>
+                <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>
+                <path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/>
+                <path d="M16 5l-3 3 3 3"/>
+                <path d="M8 5l3 3-3 3"/>
+                <circle cx="12" cy="12" r="1" fill="currentColor"/>
+              </svg>
+              <span class="symbol__name">Emergency Exit</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="canvas-area" aria-label="Drawing canvas">
+        <div class="canvas-toolbar">
+          <label class="toggle">
+            <input type="checkbox" id="gridToggle" />
+            <span class="toggle__track"></span>
+            <span class="toggle__label">Grid overlay</span>
+          </label>
+          <div class="hint">Use mouse wheel or trackpad to zoom; drag to pan.</div>
+        </div>
+
+        <div class="canvas" id="canvas" tabindex="0" aria-label="Zone plan canvas">
+          <div class="canvas__grid" aria-hidden="true"></div>
+          <svg class="canvas__svg" id="drawingSvg" aria-hidden="true"></svg>
+          <div class="canvas__placeholder">
+            <div>
+              <h2>Start by uploading a floorplan</h2>
+              <p>Or choose a tool and begin drawing right away.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel panel--right" aria-label="Properties panel">
+        <div class="panel__header">
+          <h2 class="panel__title">Properties</h2>
+          <div class="panel__hint">Select an object to edit settings.</div>
+        </div>
+        <div class="properties" id="properties" aria-live="polite">
+          <div class="properties__empty">
+            <span class="properties__emoji" aria-hidden="true">✨</span>
+            <p class="properties__text">Select a zone or symbol to see editable properties.</p>
+          </div>
+
+          <div class="property" data-field="zoneName">
+            <label class="property__label" for="zoneName">Zone name</label>
+            <input class="property__input" id="zoneName" type="text" placeholder="e.g. Lobby" />
+          </div>
+
+          <div class="property" data-field="zoneNumber">
+            <label class="property__label" for="zoneNumber">Zone number</label>
+            <input class="property__input" id="zoneNumber" type="text" placeholder="e.g. 101" />
+          </div>
+
+          <div class="property" data-field="zoneColor">
+            <label class="property__label" for="zoneColor">Zone color</label>
+            <input class="property__input" id="zoneColor" type="color" value="#0066CC" />
+          </div>
+
+          <div class="property" data-field="zoneLabelColor">
+            <label class="property__label" for="zoneLabelColor">Label color</label>
+            <input class="property__input" id="zoneLabelColor" type="color" value="#000000" />
+          </div>
+
+          <div class="property" data-field="opacity">
+            <label class="property__label" for="opacity">Opacity</label>
+            <input class="property__range" id="opacity" type="range" min="10" max="100" value="90" />
+            <span class="range-value" id="opacityValue">90%</span>
+          </div>
+
+          <div class="property" data-field="stroke">
+            <label class="property__label" for="stroke">Stroke thickness</label>
+            <input class="property__range" id="stroke" type="range" min="1" max="12" value="3" />
+            <span class="range-value" id="strokeValue">3 px</span>
+          </div>
+
+          <div class="property property--toggle" data-field="lock">
+            <span class="property__label">Lock object</span>
+            <button class="toggle-btn" id="lockToggle" type="button" aria-pressed="false">
+              <span class="toggle-btn__track"></span>
+              <span class="toggle-btn__thumb"></span>
+            </button>
+          </div>
+
+          <button class="btn btn--primary btn--full" id="duplicateBtn">Duplicate</button>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <span>ZonePlan • Prototype UI • March 2026</span>
+    </footer>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
